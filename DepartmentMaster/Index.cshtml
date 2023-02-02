@@ -1,0 +1,787 @@
+﻿@using CostEstimation;
+@using CostEstimation.FX;
+@using CostEstimation.Common.Const;
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    #btnAdmin {
+        padding: 10px 13px;
+        color: black !important;
+        border-width: 1px;
+        text-align: center;
+        border-radius: 4px;
+        border-style: outset;
+    }
+
+    .dx-button-has-text .dx-button-content, .dx-button .dx-button-content {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 3px;
+    }
+
+    .dx-validationsummary-item-content {
+        border-bottom: 0px dashed;
+        display: inline-block;
+        line-height: normal;
+    }
+
+    #button {
+        display: block;
+    }
+
+    /* #ENT.dx-invalid.dx-texteditor.dx-editor-filled.dx-show-invalid-badge .dx-texteditor-input-container::after, .dx-invalid.dx-texteditor.dx-editor-outlined.dx-show-invalid-badge .dx-texteditor-input-container::after, .dx-invalid.dx-texteditor.dx-editor-underlined.dx-show-invalid-badge .dx-texteditor-input-container::after {
+            display: none;
+        }
+    */
+
+    #btnnew {
+        padding: 10px 13px;
+        color: black !important;
+        border-width: 1px;
+        text-align: center;
+        margin-top: -1px;
+        margin-left: 0px;
+        border-radius: 4px;
+        margin-right: -320px;
+        border-style: outset;
+    }
+
+    #content {
+        padding: 10px 18px;
+        min-height: 80vh;
+        transition: all 0.3s;
+        min-width: 110%;
+        margin-left: -55px;
+        background-color: whitesmoke;
+        margin-top: -20px;
+        border-radius: 5px;
+    }
+
+    #btnAdmin {
+        padding: 10px 13px;
+        color: black !important;
+        border-width: 1px;
+        text-align: center;
+        border-radius: 4px;
+        border-style: outset;
+    }
+
+    #dialog-form .modal-header {
+        padding: 5px 15px !important;
+    }
+
+    #btn.btn {
+        background-color: lightgray;
+        padding: 7px;
+        width: 150px;
+        text-align: center;
+        margin-top: 0px;
+        margin-left: 0px;
+        border-radius: 0px
+    }
+</style>
+<div id="divLoading" style="margin: 0px; padding: 0px; position: fixed; right: 0px; top: 0px; width: 100%; height: 100%; background-color: #666666; z-index: 30001; opacity: .8; filter: alpha(opacity=70); display: none">
+    <p style="position: absolute; top: 30%; left: 45%; color: White;">
+        &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;   @resources.PLEASE_WAIT
+        <br />
+        <img src="~/Images/waiting.gif" alt="" style="height:20%;width:20%" />
+    </p>
+</div>
+
+<div class="wrapper">
+    <div id="content">
+        <div class="row">
+            <div>
+                @if (@TempData.CanAccess(Permissions.ADD))
+                {
+                    <button id="btnAdmin" class="command-home glyphicon glyphicon-cog" title="Admin Page"></button>
+                }
+                &nbsp;
+            </div>
+            <div><label id="btn" class="btn  command-new pull-left ">@resources.DEPARTMENT_MASTER</label>&nbsp;</div>
+            <div>
+                @if (@TempData.CanAccess(Permissions.ADD))
+                {
+                    <button id="btnnew" class="glyphicon glyphicon-plus-sign command-new pull-left" title=" New "></button>
+                }
+            </div>
+        </div>
+        <div>&nbsp;</div>
+        <div class="row" style="">
+            <div id="gridDep"></div>
+        </div>
+        <div id="contextMenuDep"></div>
+    </div>
+</div>
+
+<form id="frmDepMaster">
+
+    <div id="dialog-form" role="dialog" aria-hidden="true" tabindex="-1" class="modal" data-backdrop="static">
+        <div class="modal-dialog ui-draggable" id="customerDialog">
+            <div class="modal-content" style="width: 800px;">
+                <div class="modal-header ui-draggable-handle">
+
+                    <div class="col-md-9">
+                        <h4 class="modal-title">
+                            Save Department
+                        </h4>
+                    </div>
+                    <div class="col-md-3">
+                        <button id="btnClose" class="btn btn-sm btn-danger pull-right" data-dismiss="modal" title="@resources.COMN_CLOSE_BTN" style="margin-left:5px;"><i class="fa fa-window-close" aria-hidden="true"></i></button>
+                        <button type="submit" id="btnSubmit" class="btn btn-sm btn-success pull-right" title="@resources.COMN_SAVE_BTN"><i class="fa fa-save" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <div class="modal-body" style="overflow-y: auto;height:180px;">
+                    <input type="hidden" name="ID" id="ID" class="form-control" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5><b>@resources.DEPARTMENT_INFORMATION</b></h5>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <div>
+                                <label>
+                                    @resources.DEPARTMENT_CODE
+                                    <span style="color:red;">* </span>
+                                </label>
+                            </div>
+                            <div>
+                                <input type="text" name="DPTCODE" id="DPTCODE" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div>
+                                <label>@resources.DEPARTMENT_NAME  <span style="color:red;">* </span></label>
+                                
+                            </div>
+                            <div>
+                                <input type="text" name="DPTNAME" id="DPTNAME" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div>
+                                <label>
+                                    @resources.ENTITY <span style="color:red;">* </span>
+                                </label>
+                            </div>
+                            <div>
+                                <div id="ENT"></div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<!-- Model Modal Over -->
+<!-- Central Modal Medium -->
+<div class="modal fade" id="centralModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#d9534f;">
+                <div class="col-md-9">
+                    <h4 class="modal-title w-100" id="myModalLabel">Alert!</h4>
+                </div>
+                <div class="col-md-3">
+                    <input type="hidden" id="deletedId" />
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body" id="alert_text">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnYes" class="btn btn-danger">Yes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Central Modal Medium -->
+@section scripts{
+    <script>
+
+        const ViewBag = {
+           userid:'@ViewBag.UserId'
+        }
+
+        const access = {
+            permupdate: '@TempData.CanAccess(Permissions.UPDATE)'==='True'? true : false,
+            permdelete: '@TempData.CanAccess(Permissions.DELETE)'==='True'? true : false,
+            permadd: '@TempData.CanAccess(Permissions.ADD)'==='True'? true : false,
+        }
+
+        const resource = {
+            exporttoexcel: '@resources.EXPORT_TO_EXCEL',
+            depaddbtn: '@resources.DEPARTMENT_ADD_BTN',
+            searchplcholder: '@resources.COMN_SEARCH_PLC_HOLDER',
+            clearbtn: '@resources.COMN_CLEAR_BTN',
+            selectonelbl: '@resources.COMN_SELECTONE_LBL',
+            btnclosetext : '@resources.COMN_CLOSE_BTN',
+            title: '@resources.COMN_ALERT_TITLE_MSG',
+            confirmyes: '@resources.COMN_YES_LBL',
+            confirmno: '@resources.COMN_NO_LBL',
+            pagetitle: '@resources.DEPARTMENT_MASTER'
+        }
+
+    </script>
+    <script>
+        $(() => {
+
+            $('#btnSubmit').dxButton({
+                //text: 'Register',
+                // type: 'success',
+                useSubmitBehavior: true,
+                //datagrid.refresh();
+
+                onClick: function (e){
+                   // debugger
+                    //e.preventDefault();
+                    useSubmitBehavior: true
+                    //e.preventDefault();
+                }
+            });
+            $("#divLoading").hide();
+            //datagrid.refresh();
+        });
+
+        $('#btnClose').dxButton({
+
+            //useSubmitBehavior: false,
+
+            onClick: function (e) {
+
+                $("#ENT").dxValidator("instance").reset()
+                
+            }
+        });
+
+        $(function () {
+            
+
+            var ID = 0;
+
+            $("#frmDepMaster").validate({
+                rules: {
+                    ENT: {
+                        required: true
+                    },
+                    DPTCODE: {
+                        required: true
+                    },
+
+                    DPTNAME: {
+                        required: true,
+
+                    },
+
+
+                },
+                messages: {
+                    ENT: {
+                        required: 'Please enter Entity',
+                    },
+                    DPTCODE: {
+                        required: 'Please enter DPT Code',
+                    },
+
+                    DPTNAME: {
+                        required: 'Please Enter DPT Name',
+                    },
+
+
+                }
+
+            });
+
+            $("#btnnew").click(function () {
+                clearcontrol();
+                // ds.load();
+                $('#btnSubmit').attr('hidden', false);
+                $("form :input").attr("disabled", false);
+                $('#btnClose').attr('disabled', false);
+                $(".modal-title").text("Save Entity");
+                $('#dialog-form').modal('show');
+                $("#customerDialog").draggable({ handle: "div.modal-header" });
+                $("#btnSendInvite").prop('hidden', true);
+
+            });
+
+            $("#btnClear").click(function () {
+                $("#txtSearch").val('');
+                $("#grid-basic").bootgrid("search", "");
+
+            });
+            $("#btnCancel").click(function () {
+                clearcontrol();
+                $('#dialog-form').modal('hide');
+            });
+
+            // For bidning Data with modal form
+            function bindEntityDatawithcntl(data) {
+                $('#ID').val(data.ID);
+
+                var entcode = parseInt(data.ENT);
+
+                entDs.load().done(function (data) {
+                    entDdl.option("value", entcode);
+                });
+                console.log(data.ENT);
+                console.log(entDdl);
+
+                $('#DPTNAME').val(data.DPTNAME);
+                $('#DPTCODE').val(data.DPTCODE);
+
+            }
+
+            // For Clearing Errors on Modal form
+            function clearcontrol() {
+                $('#ID').val(0);  //0
+                $('#divloading').hide();
+                entDdl.reset();
+                $('label.error').remove();
+                $('#ENT').dxValidator();
+                $('#DPTNAME').val('');
+                $('#DPTCODE').val('');
+
+
+            }
+            //
+            //console.log(CurrencyCode)
+            $('#ENT').dxSelectBox({
+                placeholder: 'Select one',
+                displayExpr: 'EntityCode',     //present data from CurrencyCode
+                valueExpr: 'EntityID',
+
+                dataSource: DevExpress.data.AspNet.createStore({
+                    key: "EntityID",
+
+                    loadUrl: "Masters/EntityMaster/GetEntityForDep"
+
+                }),
+
+                onChanged(e) {
+
+                    currset.reset();
+                    entDs.reload();
+
+                }
+
+            }).dxValidator({
+                validationRules: [{
+                    type: 'required',
+                    //useSubmitBehavior: true,
+                }],
+            });
+            const entDdl = $('#ENT').dxSelectBox("instance");
+            const entDs = entDdl.getDataSource();
+            
+
+            $(document).on('keypress', '#customerDialog', function (event) {
+                var keyPressed = event.keyCode || event.which;
+                if (keyPressed === 13) {
+                    event.preventDefault();
+                    return false;
+                }
+
+            });
+
+            logoContentType = null;
+
+            let manuItems = [];
+
+            $("#contextMenuDep").dxContextMenu({
+                target: "#btnManu",
+                displayExpr: "name",
+                itemsExpr: "items",
+                onItemClick: onItemClick,
+
+                onHiding: function (e) {
+                    abc = null;
+                },
+            });
+
+
+            function onItemClick(e) {
+
+                switch (e.itemData.name) {
+                    case "Edit":
+                        onEdit(ID);
+                        break;
+                    case "Delete":
+                        onDelete(ID);
+                        break;
+
+                }
+            }
+
+            function onEdit(ID) {
+                clearcontrol();
+                $('#dialog-form').modal('show');
+                $('#divLoading').show();
+                $.ajax({
+                    type: 'POST',
+                    url: "Masters/DepartmentMaster/GetDepartmentById",
+                    data: { 'ID': ID },
+                    dataType: 'json',
+                    success: function (data) {
+                        $(".modal-title").text("Edit Department");
+                        $('#divLoading').hide();
+                        bindEntityDatawithcntl(data);
+                    },
+                    error: function (ex) {
+                        showErrorMsg(ex);
+                        $('#divLoading').hide();
+                    }
+                });
+
+            }
+
+            // For Deleting
+            function onDelete(e) {
+                $(".modal-title").text("Alert !");
+                $('#alert_text').text("Do you want to delete this Entity?");
+                $('#centralModal').modal('show');
+                $('#deletedId').val(e);
+            }
+
+            $("#btnYes").on("click", function () {
+
+                $('#divLoading').show();
+                $.ajax({
+                    type: 'POST',
+                    url: "Masters/DepartmentMaster/DeleteById",
+
+                    data: { 'ID': $('#deletedId').val() },
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#centralModal').modal('hide');
+                        showSuccessMsg('Deleted Successfully!!');
+                        datagrid.refresh();
+                        ID = 0;
+                        $('#divLoading').hide();
+                    },
+                    error: function (ex) {
+                        $('#divLoading').hide();
+                        showErrorMsg(ex);
+                        errorHandler(ex);
+                    }
+                });
+            });
+
+            $("#btnSubmit").click(function () {
+
+                if (!$("#frmDepMaster").valid()) {
+                    return false;
+                }
+                $("#btnSubmit").prop('disabled', true);
+               // $("#divLoading").show();
+
+
+                var formData = new FormData(document.getElementById("frmDepMaster")), formobject = {}; for (var entry of formData.entries()) { formobject[entry[0]] = entry[1]; }
+                console.log(formData);
+                console.log(formobject);
+
+                let depModel = JSON.stringify({
+                    ID: parseInt($('#ID').val()),
+                    ENT: encodeString(entDdl.option("value")),
+                    DPTCODE: encodeString($('#DPTCODE').val()),
+                    DPTNAME: encodeString($('#DPTNAME').val()),
+                    
+
+                })
+
+                $.ajax({
+                    url: 'Masters/DepartmentMaster/DepartmentMaster',
+                    dataType: "json",
+                    data: depModel,
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+
+                    success: function (data) {
+                        clearcontrol();
+                        $("#divLoading").show();
+                        $('#dialog-form').modal('hide');
+                        console.log(data.isExist);
+                        if (data.isExist) {
+                            $("#btnSubmit").prop('disabled', false);
+                            showWarningMsg("This DPT Code is already exist");
+                            return false;
+                        }
+                        else {
+                            $("#btnSubmit").prop('disabled', false);
+                            showSuccessMsg('Submitted Successfully!!');
+                            //ID = 0;
+                            datagrid.refresh();
+                            ID = 0;
+                            $("#divLoading").hide();
+                        }
+
+                       // $("#divLoading").hide();
+                    },
+                    error: function (err) {
+                         // $("#divLoading").hide();
+                        $("#btnSubmit").prop('disabled', false);
+                        clearcontrol();
+                        $('#dialog-form').modal('hide');
+                        showErrorMsg(err.responseText);
+                       // $("#divLoading").hide();
+                    }
+                });
+
+            });
+            function isNotEmpty(value) {
+                return value !== undefined && value !== null && value !== '';
+            }
+
+            const datagrid = $('#gridDep').dxDataGrid({
+                dataSource: new DevExpress.data.CustomStore({
+                    key: "ID",
+                    //loadMode: "raw",
+                    load: function (loadOptions) {
+                        let d = $.Deferred();
+
+                        const args = {};
+
+                        [
+                            'skip',
+                            'take',
+                            'requireTotalCount',
+                            'requireGroupCount',
+                            'sort',
+                            'filter',
+                            'totalSummary',
+                            'group',
+
+                            "parentIds",
+
+                            "searchExpr",
+                            "searchOperation",
+                            "searchValue",
+                        ].forEach((i) => {
+                            if (i in loadOptions && isNotEmpty(loadOptions[i])) {
+                                args[i] = JSON.stringify(loadOptions[i]);
+                            }
+                        });
+
+                        $.getJSON("Masters/DepartmentMaster/GetDepBrowser", args)
+                            .done(function (response) {
+                                console.log(response);
+                                d.resolve(response.rows, {
+                                    totalCount: response.totalCount,
+                                    summary: null,
+                                    groupCount: null
+                                })
+                                console.log(response.totalCount);
+
+                            })
+                            .fail(function () { throw "Data loading error" });
+
+                        return d.promise();
+                    }
+                }),
+                searchPanel: {
+                    visible: true,
+                    /*highlightCaseSensitive: true,*/
+                },
+                scrolling: {
+                    mode: 'virtual',
+                    rowRenderingMode: 'virtual',
+                },
+                paging: {
+                    pageSize: 10
+                },
+                pager: {
+                    visible: true,
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [10, 20, 50, 100, 250, 500],
+                    showPageSizeSelector: true,
+                    showInfo: true,
+                    showNavigationButtons: true,
+                },
+                loadPanel: {
+                    enabled: true,
+                },
+
+                onCellPrepared: function onCellPrepared(e) {
+                    if (e.rowType == "header") {
+                        e.cellElement.css("text-align", "center");
+                        e.cellElement.css("font-weight", "bold");
+                    }
+                    if (e.rowType == "data") {
+                        e.cellElement.css("text-align", "left");
+                    }
+                    if (e.rowType == "data" && (e.columnIndex == 4
+                        || e.columnIndex == 0 || e.columnIndex == 1
+                        || e.columnIndex == 2 || e.columnIndex == 3))          //dont calculate #
+                    {
+                        e.cellElement.css("text-align", "center");
+                    }
+
+                },
+                //
+                columnAutoWidth: true,
+                columnFixing: { enabled: true },
+                allowColumnResizing: true,
+                columnResizingMode: 'widget',
+                width: '100%',
+                rowAlternationEnabled: true,
+                showBoarders: true,
+                showColumnLines: true,
+                showRowLines: true,
+                remoteOperations: true,
+                scrolling: {
+                    enabled: true,
+                },
+                columnChooser: {
+                    enabled: true,
+                    mode: "select",
+                },
+                Sorting: {
+                    mode: 'multiple',
+                },
+                export: {
+                    enabled: true,
+                    fileName: "DepartmentMaster",
+                },
+
+                onExported(e) {
+                    e.component.columnOption('Actions', 'visible', true);
+                    e.component.endUpdate();
+
+                },
+                onOptionChanged: function (e) {
+                    if (e && e.name == 'searchPanel') {
+                        searchVal = e.value;
+                        datagrid.refresh();
+                    }
+                },
+                onRowClick: function (e) {
+                    if (e.rowType === "data") {
+                        ID = e.data.ID;
+
+                    }
+                    if (abc) {
+                        manuItems = [];
+                        if (access.permupdate) {
+                            manuItems.push({ name: 'Edit' });
+                        }
+
+                        if (access.permdelete) {
+                            manuItems.push({ name: 'Delete' });
+                        }
+
+                        $('#contextMenuDep').dxContextMenu('instance').option('items', manuItems);
+                        $('#contextMenuDep').dxContextMenu('instance').option('target', abc);
+                        $('#contextMenuDep').dxContextMenu('instance').show();
+                    }
+                },
+                onContextMenuPreparing: function (e) {
+                    let menuitems2 = []
+                    if (access.permupdate) {
+                        menuitems2.push({
+                            text: "Edit",
+                            onItemClick: function () {
+                                onEdit(e.row.data.ID);
+                            }
+                        });
+                    }
+                    if (access.permdelete) {
+                        menuitems2.push({
+                            text: "Delete",
+                            onItemClick: function () {
+                                onDelete(e.row.data.ID);
+                            }
+                        });
+                    }
+
+                    if (e.row && e.row.rowType === "data" && menuitems2.length > 0) {
+                        e.items = menuitems2;
+                    }
+                },
+
+                columns: [
+                    {
+                        dataField: 'RowNumber',
+                        caption: '#',
+                        alignment: 'center',
+                        maxWidth: 30,
+                        //showInColumnChooser: true,
+                        //visible: false,
+                    },
+                    {
+                        dataField: 'ID',
+                        caption: 'ID',
+                        alignment: 'center',
+                        maxWidth: 100,
+                        showInColumnChooser: true,
+                        visible: false,
+                    },
+                    {
+                        dataField: 'DPTCODE',
+                        caption: 'DPT Code',
+                        alignment: 'center',
+                        maxWidth: 100,
+                    },
+                    {
+                        dataField: 'DPTNAME',
+                        caption: 'DPT Name',
+                        alignment: 'center',
+                        maxWidth: 100,
+                    },
+                    {
+                        dataField: 'ENT',
+                        caption: 'Entity',
+                        alignment: 'center',
+                        maxWidth: 100,
+                    },
+
+                    {
+                        caption: 'Actions',
+                        alignment: 'center',
+                        maxWidth: 80,
+                        fixed: true,
+                        fixedPosition: "right",
+                        cellTemplate: formatersCellTemplate,
+                        showInColumnChooser: false,
+                    }
+                ],
+
+            }).dxDataGrid('instance');
+
+        });
+        //Done
+
+        const formatersCellTemplate = function (dep, options) {
+
+            $('<button class="fa fa-ellipsis-h menuButton" style="cursor: pointer;border:0px" onClick="showManu(event)"></button>').appendTo(dep);
+        };
+
+        var abc;
+        function showManu(e) {
+            if (e.target) {
+                abc = e.target;
+
+            }
+        }
+
+        $(document).on("click", ".command-home", function () {
+            document.location = "Admin/Admin";
+        });
+    </script>
+}
